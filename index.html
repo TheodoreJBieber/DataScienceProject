@@ -6,7 +6,7 @@
   <head>
     <meta charset="utf-8">
     
-    <title>Percent of Each State's Population Living in its Most Populous City</title>
+    <title>American Fires</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
@@ -21,47 +21,14 @@
           margin: 0;
           padding: 0;
         }
-      ul, li{
-        font-size:18px;
-      }
-      /* .NEXTA {
-        float:left; 
-        display:inline;
-        width: 49%;
-      } */
       
     </style>
   </head>
   <body class="container">
     <div class="col-10 mx-auto">
-      <h1>Percent of Each State's Population Living in its Most Populous City</h1>
+      <h1>Fires Per State Since 1992</h1>
       <div class="row justify-content-around">
         <div id="svgdiv" class="col-8 col-sm-12"></div>
-        
-        <div class="row col-4 col-sm-12">
-          <div id="statediv" class="NEXTA"></div>
-          <div class="NEXTA">
-            <div>
-              <ul class="list-unstyled">
-                <li id="state">Select a state</li>
-                <li id="state_population"></li>
-              </ul>
-            </div>
-            <div>
-              <ul class="list-unstyled">
-                <li id="city">City</li>
-                <li id="city_population"></li>
-                <li id="city_ranking"></li>
-              </ul>
-            </div>
-            <div class="leftaligned">
-              <ul class="list-unstyled">
-                <li id="p" >Percent of Whole</li>
-                <li id="percent_number"></li>
-              </ul>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
     
@@ -70,130 +37,38 @@
 
       // FILE IS TODO: 
       // geo json data taken from http://eric.clst.org/tech/usgeojson/
-      var populations = {
-        "Alabama": 4887871,
-        "Alaska": 737438,
-        "Arizona":  7171646,
-        "Arkansas": 3013825,
-        "California": 39557045,
-        "Colorado": 5695564,
-        "Connecticut":  3572665,
-        "Delaware": 967171,
-        "Florida":  21299325,
-        "Georgia":  10519475,
-        "Hawaii": 1420491,
-        "Idaho":  1754208,
-        "Illinois": 12741080,
-        "Indiana":  6691878,
-        "Iowa": 3156145,
-        "Kansas": 2911505,
-        "Kentucky": 4468402,
-        "Louisiana": 4659978,
-        "Maine":  1338404,
-        "Maryland": 6042718,
-        "Massachusetts": 6902149,
-        "Michigan": 9995915,
-        "Minnesota":  5611179,
-        "Mississippi": 2986530,
-        "Missouri": 6126452,
-        "Montana":  1062305,
-        "Nebraska": 1929268,
-        "Nevada": 3034392,
-        "New Hampshire": 1356458,
-        "New Jersey": 8908520,
-        "New Mexico": 2095428,
-        "New York": 19542209,
-        "North Carolina": 10383620,
-        "North Dakota": 760077,
-        "Ohio": 11689442,
-        "Oklahoma": 3943079,
-        "Oregon": 4190713,
-        "Pennsylvania": 12807060,
-        "Rhode Island": 1057315,
-        "South Carolina": 5084127,
-        "South Dakota": 882235,
-        "Tennessee": 6770010,
-        "Texas": 28701845,
-        "Utah": 3161105,
-        "Vermont": 626299,
-        "Virginia": 8517685,
-        "Washington": 7535591,
-        "West Virginia": 1805832,
-        "Wisconsin": 5813568,
-        "Wyoming": 577737
-      };
+      
+      var totalfires = 0; // keep a count of the total # of fires. Might get rid of this eventually
 
-      function mergeData(geoJson, population) {
+      function mergeData(geoJson, state_counts) {
         console.log("Merging data...");
-        // delete Puerto Rico, DC
+
+        // TODO: delete Puerto Rico, DC ?
         geoJson.features.splice(26,1);
         geoJson.features.splice(16,1);
-        console.log(geoJson);
-        
-        for(var j = 0; j < population.length; j++) {
-          var popstate = population[j].state_name;
 
-          for(var i = 0; i < geoJson.features.length; i++) {
+        for(var i = 0; i < geoJson.features.length; i++) {
+            // geoJson.features[i].properties
+            var state = geoJson.features[i].properties["NAME"];
+            
+            count = state_counts[name_to_abbr(state)]
 
-            var jsonState = geoJson.features[i].properties["NAME"];
+            geoJson.features[i].properties['firecount'] = count;
 
-            // this kills me to do but its a list and not a dictionary so we dont have a ton of choices
-            // TODO: Change for fire merging
-            if(popstate == jsonState) {
-              // fix population[j]
-              population[j].density = + population[j].density;
-              population[j].lat = + population[j].lat;
-              population[j].lng = + population[j].lng;
-              population[j].population = + population[j].population;
-              population[j].population_proper = + population[j].population_proper;
-
-              // put the population data into geoJson properties
-              if(geoJson.features[i].properties.cities) {
-                geoJson.features[i].properties.cities.push(population[j]);
-              } else {
-                geoJson.features[i].properties.cities = [population[j]];
-              }
-
-              // Keep a total of the population for ease of calculations later
-              // pop total
-              geoJson.features[i].properties.poptotal = populations[popstate];
-
-              // keep track of the maximum population for each state
-              // population max
-              if(!geoJson.features[i].properties.popmax) {
-                geoJson.features[i].properties.popmax = population[j].city_ascii;
-                geoJson.features[i].properties.popmaxvalue = population[j].population_proper;
-              } else {
-                if(population[j].population > geoJson.features[i].properties.popmaxvalue) {
-                  geoJson.features[i].properties.popmax = population[j].city_ascii;
-                  geoJson.features[i].properties.popmaxvalue = population[j].population_proper;
-                }
-              }
-
-              geoJson.features[i].properties.selected = geoJson.features[i].properties.popmax;
-              geoJson.features[i].properties.selectedVal = geoJson.features[i].properties.popmaxvalue;
-            }
-          }
+            totalfires+=count;
         }
+        
         console.log("Done merging data.");
       }
 
-      //TODO: change it to Load in the sqlite file and merge it with the geojson
-      d3.csv("population_data.csv", function(population_data) {
-        // some flags for a small extra feature
-        // that feature is loading in all resolution maps at once, that way the image will get better after a few seconds
-        var med = false;
-        var high = false;
-
-        // high res file works well, and the others produced a difference in values and colors for some reason.
+      d3.json("dataset/state_counts.json", function(fire_data) {
         d3.json("usa_high_res.json", function(data) {
           console.log("Starting usa_high_res...");
-          high = true; // not exactly thread safe but it comes close
-          mergeData(data, population_data); // merge pop data with geoJson 
+          mergeData(data, fire_data); // merge fire data with geoJson 
           console.log(data);
           createMap(data); // draw the map!
         });// end geojson data read in
-      });//end population_data read in
+      });//end fire_data read in
       
 
       // variables for styling
@@ -201,14 +76,13 @@
       let defaultwidth = "1px";
 
       let valuemap = [];
-      var colorscheme = d3.schemeGreens[9];
+      var colorscheme = d3.schemeReds[9];
       var color = null;
 
-      // TODO: Change for the fires
       function mapValues(geoJson) {
         let answer = geoJson.features.map(d => {
-          var max = d.properties.poptotal;
-          var val = d.properties.selectedVal;
+          var max = totalfires;
+          var val = d.properties.firecount;
             
           return val/max;
         });
@@ -216,10 +90,126 @@
         return answer;
       }
 
-      function createMap(geoJson) {
-        
+      function abbr_to_name(abbr){
+          mapper = {
+            "AL": "Alabama",
+            "AK": "Alaska",
+            "AZ": "Arizona",
+            "AR": "Arkansas",
+            "CA": "California",
+            "CO": "Colorado",
+            "CT": "Connecticut",
+            "DE": "Delaware",
+            "DC": "District Of Columbia",
+            "FL": "Florida",
+            "GA": "Georgia",
+            "HI": "Hawaii",
+            "ID": "Idaho",
+            "IL": "Illinois",
+            "IN": "Indiana",
+            "IA": "Iowa",
+            "KS": "Kansas",
+            "KY": "Kentucky",
+            "LA": "Louisiana",
+            "ME": "Maine",
+            "MD": "Maryland",
+            "MA": "Massachusetts",
+            "MI": "Michigan",
+            "MN": "Minnesota",
+            "MS": "Mississippi",
+            "MO": "Missouri",
+            "MT": "Montana",
+            "NE": "Nebraska",
+            "NV": "Nevada",
+            "NH": "New Hampshire",
+            "NJ": "New Jersey",
+            "NM": "New Mexico",
+            "NY": "New York",
+            "NC": "North Carolina",
+            "ND": "North Dakota",
+            "OH": "Ohio",
+            "OK": "Oklahoma",
+            "OR": "Oregon",
+            "PA": "Pennsylvania",
+            "PR": "Puerto Rico",
+            "RI": "Rhode Island",
+            "SC": "South Carolina",
+            "SD": "South Dakota",
+            "TN": "Tennessee",
+            "TX": "Texas",
+            "UT": "Utah",
+            "VT": "Vermont",
+            "VA": "Virginia",
+            "WA": "Washington",
+            "WV": "West Virginia",
+            "WI": "Wisconsin",
+            "WY": "Wyoming"
+        }
+      
+        return mapper[abbr]
+      }
 
-        clearState();
+      function name_to_abbr(name) {
+        mapper = {
+          "Alabama":"AL",
+          "Alaska":"AK",
+          "Arizona":"AZ",
+          "Arkansas":"AR",
+          "California":"CA",
+          "Colorado":"CO",
+          "Connecticut":"CT",
+          "Delaware":"DE",
+          "District Of Columbia":"DC",
+          "Florida":"FL",
+          "Georgia":"GA",
+          "Hawaii":"HI",
+          "Idaho":"ID",
+          "Illinois":"IL",
+          "Indiana":"IN",
+          "Iowa":"IA",
+          "Kansas":"KS",
+          "Kentucky":"KY",
+          "Louisiana":"LA",
+          "Maine":"ME",
+          "Maryland":"MD",
+          "Massachusetts":"MA",
+          "Michigan":"MI",
+          "Minnesota":"MN",
+          "Mississippi":"MS",
+          "Missouri":"MO",
+          "Montana":"MT",
+          "Nebraska":"NE",
+          "Nevada":"NV",
+          "New Hampshire":"NH",
+          "New Jersey":"NJ",
+          "New Mexico":"NM",
+          "New York":"NY",
+          "North Carolina":"NC",
+          "North Dakota":"ND",
+          "Ohio":"OH",
+          "Oklahoma":"OK",
+          "Oregon":"OR",
+          "Pennsylvania":"PA",
+          "Puerto Rico":"PR",
+          "Rhode Island":"RI",
+          "South Carolina":"SC",
+          "South Dakota":"SD",
+          "Tennessee":"TN",
+          "Texas":"TX",
+          "Utah":"UT",
+          "Vermont":"VT",
+          "Virginia":"VA",
+          "Washington":"WA",
+          "West Virginia":"WV",
+          "Wisconsin":"WI",
+          "Wyoming":"WY"
+          
+        }
+
+        return mapper[name]
+      }
+
+      function createMap(geoJson) {
         d3.select("#svgdiv").select("svg").remove();
 
         valuemap = mapValues(geoJson);
@@ -244,12 +234,7 @@
           .attr("height", svgextent[1])
           .style("fill", "#66aaaa")
           .style("stroke", "black")
-          .style("stroke-width", "2px")
-          .on("click", function(d, i) {
-            clearState();
-            resetText();
-            resetSelection();
-          });
+          .style("stroke-width", "2px");
 
         projection.fitExtent([[0, 0], svgextent], geoJson);
           
@@ -261,9 +246,10 @@
           .append('path')
           .attr('d', geoGenerator)
           .style("fill", function(d, i) {
-            var max = d.properties.poptotal;
-            var val = d.properties.selectedVal;
-            return color(val/max);
+            var max = totalfires;
+            var val = d.properties.firecount;
+            
+          return color(val/max);
           })
           .style("stroke", "black")
           .style("stroke-width", "1px")
@@ -282,7 +268,7 @@
 
         let legendtranslate = "(" + (svgextent[0]-280) + ", " + (svgextent[1]-50)+")";
         var legend = svg.selectAll("g.legend");
-        var legendText = "Percent of State's Population"
+        var legendText = "Percent of Total Fires"
 
         const x = d3.scaleLinear()
           .domain(d3.extent(color.domain()))
