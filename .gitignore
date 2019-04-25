@@ -3,3 +3,4 @@ node_modules
 188-million-us-wildfires.zip
 dataset/FPA_FOD_20170508.sqlite
 dataset/size_location_date.csv
+dataset/interactive.json

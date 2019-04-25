@@ -57,7 +57,14 @@ def main():
             else:
                 string=string[:-1] # remove comma this way because i'm lazy
                 outfile.write(string+"\n")
-        
+
+    
+    # interactive data
+    interactive = get_interactive_data(connection)
+    # print(interactive)#too much data to print
+    # save the state_counts to a json file
+    with open(outfolder + 'interactive.json', 'w') as outfile:
+        json.dump(interactive, outfile)
         
             
 
@@ -139,6 +146,21 @@ def get_size_location_date(sqlite_connection):
 
     for row in c:
         out.append([row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10]])
+
+    return out
+
+
+'''
+For interactive maps
+'''
+def get_interactive_data(sqlite_connection):
+    c=sqlite_connection.cursor()
+    c.execute('SELECT FOD_ID,FIRE_SIZE,LATITUDE,LONGITUDE,STATE,FIRE_YEAR FROM Fires;') # FOD_ID is the global unique identifier for the fire
+
+    out = []
+
+    for row in c:
+        out.append({"id":row[0],"size":row[1],"lat":row[2],"lon":row[3],"state":row[4],"year":row[5]})
 
     return out
 
