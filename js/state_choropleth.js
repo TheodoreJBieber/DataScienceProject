@@ -174,7 +174,7 @@ function name_to_abbr(name) {
 }
 
 function createMap(geoJson) {
-    d3.select("#svgdiv").select("svg").remove();
+    d3.select("#state_div").select("svg").remove();
 
     valuemap = mapValues(geoJson);
     color = d3.scaleQuantize()
@@ -188,12 +188,12 @@ function createMap(geoJson) {
     var geoGenerator = d3.geoPath()
         .projection(projection);
 
-    var svg = d3.select("#svgdiv").append("svg")
+    var svg = d3.select("#state_div").append("svg")
         .attr("width", svgextent[0])
         .attr("height", svgextent[1]);
 
     // BACKGROUND
-    d3.select("#svgdiv").select("svg").append("rect")
+    d3.select("#state_div").select("svg").append("rect")
         .attr("width", svgextent[0])
         .attr("height", svgextent[1])
         .style("fill", "#66aaaa")
@@ -217,11 +217,11 @@ function createMap(geoJson) {
         })
         .style("stroke", "black")
         .style("stroke-width", "1px")
-        .on("click", function (d, i) { // let users select a state
-            updateText(this, d, i);
-            changeSelection(this, d, i);
-            drawState(d);
-        })
+        // .on("click", function (d, i) { // let users select a state
+        //     updateText(this, d, i);
+        //     changeSelection(this, d, i);
+        //     drawState(d);
+        // })
         .attr("class", "chloropleth_g");
 
     // legend very slightly modified from https://beta.observablehq.com/@mbostock/d3-choropleth
@@ -232,7 +232,7 @@ function createMap(geoJson) {
 
     let legendtranslate = "(" + (svgextent[0] - 280) + ", " + (svgextent[1] - 50) + ")";
     var legend = svg.selectAll("g.legend");
-    var legendText = "Percent of Total Fires"
+    var legendText = "Percent of Total Fires";
 
     const x = d3.scaleLinear()
         .domain(d3.extent(color.domain()))
@@ -244,8 +244,7 @@ function createMap(geoJson) {
         .attr("height", 8)
         .attr("x", d => x(d[0]))
         .attr("width", d => x(d[1]) - x(d[0]))
-        .attr("fill", d => color(d[0]))
-        ;
+        .attr("fill", d => color(d[0]));
 
     legend.append("text")
         .attr("class", "caption")

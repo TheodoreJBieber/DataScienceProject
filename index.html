@@ -26,13 +26,16 @@
   </head>
   <body class="container">
     <div class="col-10 mx-auto">
-      <h1>Fires Per State Since 1992</h1>
       <div class="row justify-content-around">
-        <div id="svgdiv" class="col-8 col-sm-12"></div>
+        <h1 class="col-8 col-sm-12">Fires Per State Since 1992</h1>
+        <div id="state_div" class="col-8 col-sm-12"></div>
+        <h1 class="col-8 col-sm-12">Fires Per Year Since 1992</h1>
+        <div id="time_div" class="col-8 col-sm-12"></div>
       </div>
     </div>
     <!-- Our visualizations. Located in js/ folder-->
-    <script type="text/javascript" src="js/choropleth.js"></script>
+    <script type="text/javascript" src="js/state_choropleth.js"></script>
+    <script type="text/javascript" src="js/time_graph.js"></script>
     <!-- -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
