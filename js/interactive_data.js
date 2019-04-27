@@ -1,12 +1,132 @@
-fire_data = [];
+/*
+ For the most part this is a file that has some helper functions. 
 
-// load in all of the data
-d3.json("../dataset/interactive.json", function(d) {
-    setvars(d);
-});
+ The exception is the methods that draw a state and a line chart for that state
+*/
 
-function setvars(fd) {
-    fire_data = fd;
+// this method will draw a given state on an svg (TAKES THE STATE ABBREVIATION)
+function drawState(svg, geoJson, state) {
+    statefpath = "dataset/interactive_"+state+".json";
+
+    d3.json(statefpath, function(data) {
+        // first remove the old state map if it exists
+        clearStateMap(svg);
+
+        // now redraw it
+        // create svg
+        let stateextent = [300, 300];
+        statemap = svg.append("svg")
+            .attr("width", stateextent[0])
+            .attr("height", stateextent[1])
+            .attr("id", "statemap");
+          
+        statemap.append("rect")
+            .attr("width", stateextent[0])
+            .attr("height", stateextent[1])
+            .style("fill", "#66aaaa")
+            .style("stroke", "black")
+            .style("stroke-width", "2px");
+
+        // get the state we want
+        statefeature = null;
+        features = geoJson.features;
+        stateName = abbr_to_name(state);
+        for(i = 0; i < features.length; i++) {
+            if(features[i].properties.NAME == stateName) {
+                statefeature = features[i];
+                break;
+            }
+        }
+
+        // now draw the state
+        var projection = d3.geoAlbersUsa();
+        var geoGenerator = d3.geoPath()
+            .projection(projection);
+
+        projection.fitExtent([[0,0], stateextent], statefeature);
+
+        statemap.append("g")
+            .selectAll('path')
+            .data([statefeature])
+            .enter()
+            .append('path')
+            .attr('d', geoGenerator)
+            .style("fill", "white")
+            .style("stroke", "black")
+            .style("stroke-width", "1px");
+
+        // now draw the fire data on it
+        // Only draw ones greater than the average
+        let minfiresize = d3.mean(data.map(n=> {return n.size}));
+        data = data.filter(n => n.size > minfiresize); // filters out ones smaller than average
+        let max = d3.max(data.map(n=> {return n.size}));
+        statemap.selectAll("circle")
+            .data(data)
+            .enter()
+            .append("circle")
+            .attr("cx", function(d) {
+                return projection([d.lon, d.lat])[0];
+            })
+            .attr("cy", function(d) {
+                return projection([d.lon, d.lat])[1];
+            })
+            .attr("r", function(d) {
+                let coef = 0.5;
+                return coef+coef*(d.size/max);
+            })
+            .style("fill", function(d) {
+                return "red";
+            })
+    });
+}
+
+function clearStateMap(svg) {
+    svg.select('#statemap').remove();
+}
+
+/* Slice array into even sub arrays
+from: https://stackoverflow.com/questions/8188548/splitting-a-js-array-into-n-arrays
+*/
+function chunkify(a, n, balanced) {
+    
+    if (n < 2)
+        return [a];
+
+    var len = a.length,
+            out = [],
+            i = 0,
+            size;
+
+    if (len % n === 0) {
+        size = Math.floor(len / n);
+        while (i < len) {
+            out.push(a.slice(i, i += size));
+        }
+    }
+
+    else if (balanced) {
+        while (i < len) {
+            size = Math.ceil((len - i) / n--);
+            out.push(a.slice(i, i += size));
+        }
+    }
+
+    else {
+        n--;
+        size = Math.floor(len / n);
+        if (len % size === 0)
+            size--;
+        while (i < size * n) {
+            out.push(a.slice(i, i += size));
+        }
+        out.push(a.slice(size * n));
+
+    }
+    return out;
+}
+
+function drawStateLineChart(svg, state) {
+
 }
 
 // call this function to get all of the data by using a state abbreviation

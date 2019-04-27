@@ -1,4 +1,3 @@
-console.log(fire_data.length);
 // FILE IS TODO: 
 // geo json data taken from http://eric.clst.org/tech/usgeojson/
 
@@ -79,7 +78,10 @@ function createMap(geoJson) {
         .attr("height", svgextent[1])
         .style("fill", "#66aaaa")
         .style("stroke", "black")
-        .style("stroke-width", "2px");
+        .style("stroke-width", "2px")
+        .on("click", function (d, i) { // let users select a state
+            clearStateMap(svg);
+        });
 
     projection.fitExtent([[0, 0], svgextent], geoJson);
 
@@ -98,11 +100,9 @@ function createMap(geoJson) {
         })
         .style("stroke", "black")
         .style("stroke-width", "1px")
-        // .on("click", function (d, i) { // let users select a state
-        //     updateText(this, d, i);
-        //     changeSelection(this, d, i);
-        //     drawState(d);
-        // })
+        .on("click", function (d, i) { // let users select a state
+            drawState(svg,geoJson, name_to_abbr(d.properties.NAME));
+        })
         .attr("class", "chloropleth_g");
 
     // legend very slightly modified from https://beta.observablehq.com/@mbostock/d3-choropleth
