@@ -71,7 +71,7 @@ function drawState(svg, geoJson, state) {
                 return projection([d.lon, d.lat])[1];
             })
             .attr("r", function(d) {
-                let coef = 0.5;
+                let coef = 0.7;
                 return coef+coef*(d.size/max);
             })
             .style("fill", function(d) {
