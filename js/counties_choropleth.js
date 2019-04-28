@@ -8,6 +8,9 @@ var path = d3.geoPath();
 
 // var projection = d3.geoAlbersUsa();
 
+var toolTip = d3.select('body').append('div');
+toolTip.classed('tooltip', true);
+
 d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
   if (error) throw error;
 
@@ -19,7 +22,6 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
     console.log(counties)
     for(let county in counties){
       county = counties[county];
-      console.log(county);
       if(county.count == undefined){
         continue;
       }
@@ -31,19 +33,28 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
       }
     }
     console.log('min' + min)
-    let colorscheme = d3.schemeReds[9];
-    let col = d3.scaleQuantize()
-        .domain([min, max])
-        .range(colorscheme)
+    let colorscheme = d3.schemeRdYlBu[0];
+    let col = d3.interpolateRdYlBu;//d3.scaleQuantize().domain([min, max]).range(colorscheme);
     svg.append("g")
         .attr("class", "counties")
       .selectAll("path")
       .data(topojson.feature(us, us.objects.counties).features)
       .enter().append("path")
         .attr("d", path)
-        .style("fill", function(d){return counties[d.id] ? col(counties[d.id].count) : col(min)})
-        .on('mouseover', function(d){
-          console.log(counties[d.id] ? counties[d.id].count : 0);
+        .style("fill", function(d){return counties[d.id] ? col(0.5 -(counties[d.id].count-min)/(max-min)) : col(0.8)})
+        .style("stroke", "#303133")
+        .on("mouseover", function(d) {    
+            toolTip.transition()    
+                .duration(200)    
+                .style("opacity", .9);    
+            toolTip.html("# Fires: " + (counties[d.id] ? counties[d.id].count : 0))  
+                .style("left", (d3.event.pageX) + "px")   
+                .style("top", (d3.event.pageY - 28) + "px");  
+            })          
+        .on("mouseout", function(d) {   
+            toolTip.transition()    
+                .duration(500)    
+                .style("opacity", 0); 
         });
   });
 
