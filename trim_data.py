@@ -29,13 +29,6 @@ def main():
 	with open(outfolder + 'state_counts.json', 'w') as outfile:
 		json.dump(state_counts, outfile)
 
-	# county counts
-	county_counts = get_county_counts(connection)
-	print(county_counts)
-	# save the state_counts to a json file
-	with open(outfolder + 'county_counts.json', 'w') as outfile:
-		json.dump(county_counts, outfile)
-
 	# yearly counts
 	yearly_counts = get_yearly_counts(connection)
 	print(yearly_counts)
@@ -100,80 +93,6 @@ def get_state_counts(sqlite_connection):
 
 	return out
 
-'''
-Gets the count of all rows for each county in the sqlite database.
-Returns a json/dictionary object that are sorted by fips code
-'''
-def get_county_counts(sqlite_connection):
-	c=sqlite_connection.cursor()
-	c.execute('SELECT COUNTY,STATE,COUNT(*),FIPS_CODE FROM Fires GROUP BY FIPS_CODE;') # fips code is a numerical representation of county. it is unique, whereas county names may not be
-
-	out = {}
-	state_fips = {'AL': '01',
-				  'AK': '02',
-				  'AS': '60',
-				  'AZ': '04',
-				  'AR': '05',
-				  'CA': '06',
-				  'CO': '08',
-				  'CT': '09',
-				  'DE': '10',
-				  'DC': '11',
-				  'FL': '12',
-				  'FM': '64',
-				  'GA': '13',
-				  'GU': '66',
-				  'HI': '15',
-				  'ID': '16',
-				  'IL': '17',
-				  'IN': '18',
-				  'IA': '19',
-				  'KS': '20',
-				  'KY': '21',
-				  'LA': '22',
-				  'ME': '23',
-				  'MH': '68',
-				  'MD': '24',
-				  'MA': '25',
-				  'MI': '26',
-				  'MN': '27',
-				  'MS': '28',
-				  'MO': '29',
-				  'MT': '30',
-				  'NE': '31',
-				  'NV': '32',
-				  'NH': '33',
-				  'NJ': '34',
-				  'NM': '35',
-				  'NY': '36',
-				  'NC': '37',
-				  'ND': '38',
-				  'MP': '69',
-				  'OH': '39',
-				  'OK': '40',
-				  'OR': '41',
-				  'PW': '70',
-				  'PA': '42',
-				  'PR': '72',
-				  'RI': '44',
-				  'SC': '45',
-				  'SD': '46',
-				  'TN': '47',
-				  'TX': '48',
-				  'UM': '74',
-				  'UT': '49',
-				  'VT': '50',
-				  'VA': '51',
-				  'VI': '78',
-				  'WA': '53',
-				  'WV': '54',
-				  'WI': '55',
-				  'WY': '56'}
-	for row in c:
-		if not row[3] == None: # roughly 600,000 rows do not have a fips code or a county. we want to ignore these since we can't map this data to a specific county
-			out[state_fips[row[1]] + row[3]]={'county':row[0],'state':row[1], 'count':row[2]}
-
-	return out
 
 '''
 Gets the count of all rows for each year in the sqlite database.
