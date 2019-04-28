@@ -42,12 +42,23 @@
     </style>
   </head>
   <body class="container">
-    <div class="col-10 mx-auto">
+    <div class="col-12 mx-auto">
       <div class="row justify-content-around">
-        <h1 class="col-8 col-sm-12">Fires Per State Since 1992</h1>
-        <div id="us_div" class="col-8 col-sm-12"></div>
-        <div id="state_div" class="col-9 col-sm-12"></div>
-        <div id="time_div" class="col-8 col-sm-12"></div>
+        
+        <div class="row col-12">
+          <!-- <div class="row col-8 d-flex justify-content-center"> -->
+            <h1 class="col-12">Fires Per State Since 1992</h1>
+            <div class="col-8" id="us_div"></div>
+          <!-- </div> -->
+            
+          <div class="col-4">
+            <div class="row">
+                <div id="state_div"></div>
+                <div id="time_div"></div>
+            </div>
+          </div>
+        </div>
+
         <h1 class="col-8 col-sm-12">Heat Map of the Fires</h1>
         <div id="heat_div" class="col-8 col-sm-12"></div>
       </div>

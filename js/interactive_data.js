@@ -14,18 +14,18 @@ function drawState(svg, geoJson, state) {
 
         // now redraw it
         // create svg
-        let stateextent = [300, 300];
-        statemap = svg.append("svg")
-            .attr("width", stateextent[0])
-            .attr("height", stateextent[1])
-            .attr("id", "statemap");
+        let stateextent = [475, 300];
+        // statemap = svg.append("svg")
+        //     .attr("width", stateextent[0])
+        //     .attr("height", stateextent[1])
+        //     .attr("id", "statemap");
           
-        statemap.append("rect")
-            .attr("width", stateextent[0])
-            .attr("height", stateextent[1])
-            .style("fill", "#66aaaa")
-            .style("stroke", "black")
-            .style("stroke-width", "2px");
+        // statemap.append("rect")
+        //     .attr("width", stateextent[0])
+        //     .attr("height", stateextent[1])
+        //     .style("fill", "#66aaaa")
+        //     .style("stroke", "black")
+        //     .style("stroke-width", "2px");
 
         // get the state we want
         statefeature = null;
@@ -82,6 +82,18 @@ function drawState(svg, geoJson, state) {
 
 function clearStateMap(svg) {
     svg.select('#statemap').remove();
+    let stateextent = [475, 300];
+        statemap = svg.append("svg")
+            .attr("width", stateextent[0])
+            .attr("height", stateextent[1])
+            .attr("id", "statemap");
+          
+        statemap.append("rect")
+            .attr("width", stateextent[0])
+            .attr("height", stateextent[1])
+            .style("fill", "#66aaaa")
+            .style("stroke", "black")
+            .style("stroke-width", "2px");
 }
 
 /* Slice array into even sub arrays

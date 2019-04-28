@@ -30,6 +30,7 @@ d3.json("../dataset/state_counts.json", function (fire_data) {
         mergeData(data, fire_data); // merge fire data with geoJson 
         console.log(data);
         drawDefaultTimeChart(d3.select("#time_div"));
+        clearStateMap(d3.select("#state_div"));
         createMap(data); // draw the map!
     });// end geojson data read in
 });//end fire_data read in
@@ -62,7 +63,7 @@ function createMap(geoJson) {
         .domain([valuemap[0], valuemap[valuemap.length - 1]])
         .range(colorscheme)
 
-    var svgextent = [600, 600];
+    var svgextent = [700, 720];
 
     var projection = d3.geoAlbersUsa();
 
