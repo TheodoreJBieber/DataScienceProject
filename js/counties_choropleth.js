@@ -41,7 +41,7 @@ d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
       .data(topojson.feature(us, us.objects.counties).features)
       .enter().append("path")
         .attr("d", path)
-        .style("fill", function(d){return counties[d.id] ? col(0.5 -(counties[d.id].count-min)/(max-min)) : col(0.8)})
+        .style("fill", function(d){return counties[d.id] ? col(0.5 - 0.5*(counties[d.id].count-min)/(max-min)) : col(0.8)})
         .style("stroke", "#303133")
         .on("mouseover", function(d) {    
             toolTip.transition()    
