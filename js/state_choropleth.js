@@ -29,6 +29,7 @@ d3.json("../dataset/state_counts.json", function (fire_data) {
         console.log("Starting usa_high_res...");
         mergeData(data, fire_data); // merge fire data with geoJson 
         console.log(data);
+        drawDefaultTimeChart(d3.select("#time_div"));
         createMap(data); // draw the map!
     });// end geojson data read in
 });//end fire_data read in
@@ -54,7 +55,7 @@ function mapValues(geoJson) {
 }
 
 function createMap(geoJson) {
-    d3.select("#state_div").select("svg").remove();
+    d3.select("#us_div").select("svg").remove();
 
     valuemap = mapValues(geoJson);
     color = d3.scaleQuantize()
@@ -68,19 +69,21 @@ function createMap(geoJson) {
     var geoGenerator = d3.geoPath()
         .projection(projection);
 
-    var svg = d3.select("#state_div").append("svg")
+    var svg = d3.select("#us_div").append("svg")
         .attr("width", svgextent[0])
         .attr("height", svgextent[1]);
 
     // BACKGROUND
-    d3.select("#state_div").select("svg").append("rect")
+    d3.select("#us_div").select("svg").append("rect")
         .attr("width", svgextent[0])
         .attr("height", svgextent[1])
         .style("fill", "#66aaaa")
         .style("stroke", "black")
         .style("stroke-width", "2px")
         .on("click", function (d, i) { // let users select a state
-            clearStateMap(svg);
+            clearStateMap(d3.select("#state_div"));
+            clearStateLineChart(d3.select("#time_div"));
+            drawDefaultTimeChart(d3.select("#time_div"));
         });
 
     projection.fitExtent([[0, 0], svgextent], geoJson);
@@ -101,7 +104,8 @@ function createMap(geoJson) {
         .style("stroke", "black")
         .style("stroke-width", "1px")
         .on("click", function (d, i) { // let users select a state
-            drawState(svg,geoJson, name_to_abbr(d.properties.NAME));
+            drawState(d3.select("#state_div"),geoJson, name_to_abbr(d.properties.NAME));
+            drawStateLineChart(d3.select("#time_div"), name_to_abbr(d.properties.NAME));
         })
         .attr("class", "chloropleth_g");
 

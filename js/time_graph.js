@@ -1,16 +1,18 @@
 // Draw a line chart
 // Code adapted from: https://bl.ocks.org/gordlea/27370d1eea8464b04538e6d8ced39e89
 
-d3.json("../dataset/yearly_counts.json", function (yearly_counts) {
-    drawGraph(yearly_counts);
-});
+function drawDefaultTimeChart(svg) {
+    nsvg = svg.append("svg").attr("id", "timegraph");
+    d3.json("../dataset/yearly_counts.json", function (yearly_counts) {
+        drawGraph(nsvg, yearly_counts);
+    });
+}
 
-
-function drawGraph(data) {
+function drawGraph(svg, data) {
 
     var margin = {top: 50, right: 50, bottom: 50, left: 50};
-    var width = 600 - margin.left - margin.right;
-    var height = 600 - margin.top - margin.bottom;
+    var width = 500 - margin.left - margin.right;
+    var height = 500 - margin.top - margin.bottom;
 
     var years = []
     for (var property in data) {
@@ -43,15 +45,14 @@ function drawGraph(data) {
     // append the svg obgect to the body of the page
     // appends a 'group' element to 'svg'
     // moves the 'group' element to the top left margin
-    var svg = d3.select("#time_div").append("svg")
-        .attr("width", width + margin.left + margin.right)
+    var graph = svg.attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
-        .append("g")
+        .append("g").attr("id", "graph")
         .attr("transform",
             "translate(" + margin.left + "," + margin.top + ")");
 
     // Add the valueline path.
-    svg.append("path")
+    graph.append("path")
         .data([values])
         .attr("class", "line")
         .attr("fill", "none")
@@ -62,7 +63,7 @@ function drawGraph(data) {
         .attr("d", valueline);
 
     // 12. Appends a circle for each datapoint 
-    svg.selectAll(".dot")
+    graph.selectAll(".dot")
         .data(values)
         .enter().append("circle") // Uses the enter().append() method
         .attr("class", "dot") // Assign a class for styling
@@ -72,13 +73,14 @@ function drawGraph(data) {
         .attr("fill", "steelblue")
 
     // Add the X Axis
-    svg.append("g")
-        .attr("transform", "translate(0," + height + ")")
+    graph.append("g")
+        .attr("transform", "translate(" + 0 + "," + height + ")")
         .call(d3.axisBottom(x));
 
     // Add the Y Axis
-    svg.append("g")
+    graph.append("g")
         .call(d3.axisLeft(y));
 
+    graph.attr("transform", "translate(" + margin.left + "," + 0 + ")")
 
 }

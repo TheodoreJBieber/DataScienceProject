@@ -125,21 +125,26 @@ function chunkify(a, n, balanced) {
     return out;
 }
 
+function clearStateLineChart(svg) {
+    svg.select("#timegraph").remove();
+}
+
 function drawStateLineChart(svg, state) {
+    statefpath = "dataset/interactive_"+state+".json";
 
+    clearStateLineChart(svg);
+    nsvg = svg.append("svg").attr("id", "timegraph");
+
+    d3.json(statefpath, function(data) {
+        yearly = {}
+
+        for(i = 0; i < data.length; i++) {
+            yearly[data[i].year] = yearly[data[i].year]+1 || 1;
+        }
+
+        drawGraph(nsvg, yearly);
+    });
 }
-
-// call this function to get all of the data by using a state abbreviation
-// example: to get data in california, use param "CA"
-function getDataByState(state) {
-    return fire_data.filter(obj => obj.state==state);
-}
-
-// call this function to get all of the data by using a year
-function getDataByYear(year) {
-    return fire_data.filter(obj=>parseInt(obj.year)==year);
-}
-
 
 function abbr_to_name(abbr) {
     mapper = {
