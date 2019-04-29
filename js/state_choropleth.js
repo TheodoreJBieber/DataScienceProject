@@ -24,7 +24,7 @@ function mergeData(geoJson, state_counts) {
     console.log("Done merging data.");
 }
 
-d3.json("../dataset/state_counts.json", function (fire_data) {
+d3.json("dataset/state_counts.json", function (fire_data) {
     d3.json("usa_high_res.json", function (data) {
         console.log("Starting usa_high_res...");
         mergeData(data, fire_data); // merge fire data with geoJson 
