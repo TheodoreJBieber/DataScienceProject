@@ -22,9 +22,11 @@ def main():
 	connection = sqlite3.connect(sqlite_path)
 
 	# county counts
-	county_counts = get_county_counts(connection)
-	print(county_counts)
+	county_counts = get_county_counts(connection,outfolder)
+	# print(county_counts)
 	# save the state_counts to a json file
+
+
 	with open(outfolder + 'county_counts.json', 'w') as outfile:
 		json.dump(county_counts, outfile)
 
@@ -46,7 +48,7 @@ def get_cli_arguments():
 Gets the count of all rows for each county in the sqlite database.
 Returns a json/dictionary object that are sorted by fips code
 '''
-def get_county_counts(sqlite_connection):
+def get_county_counts(sqlite_connection,outfolder):
 	c=sqlite_connection.cursor()
 	c.execute('SELECT COUNTY,STATE,FIPS_CODE,LATITUDE,LONGITUDE FROM Fires;') # fips code is a numerical representation of county. it is unique, whereas county names may not be
 
@@ -111,12 +113,28 @@ def get_county_counts(sqlite_connection):
 				  'WV': '54',
 				  'WI': '55',
 				  'WY': '56'}
+	
+	skip = 2
+	i = 0
+	write = 5000
 	for row in c:
-		if not row[2] == None: # roughly 600,000 rows do not have a fips code or a county. we want to ignore these since we can't map this data to a specific county
-			bigfips = state_fips[row[1]] + row[2]
-		else:
-			bigfips = fetch_fips(row[3],row[4])
-		out[bigfips]={'county':row[0],'state':row[1], 'count':out.get(bigfips, {'county':row[0],'state':row[1], 'count':0})['count']+1}
+		if i%write==0:
+			with open(outfolder +'dump2/'+ 'county_counts_dump' + str(i) + '.json', 'w') as outfile:
+				json.dump(out, outfile)
+				print("Dumped at index: " + str(i))
+		
+		if i % skip == 1:
+			if not row[2] == None: # roughly 600,000 rows do not have a fips code or a county. we want to ignore these since we can't map this data to a specific county
+				bigfips = state_fips[row[1]] + row[2]
+			else:
+				try:
+					bigfips = fetch_fips(row[3],row[4])
+				except:
+					bigfips =  "-1"
+					print("caught error")
+			out[bigfips]={'county':row[0],'state':row[1], 'count':out.get(bigfips, {'county':row[0],'state':row[1], 'count':0})['count']+1}
+
+		i=i+1
 
 	return out
 

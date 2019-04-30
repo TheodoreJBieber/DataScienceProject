@@ -3,7 +3,7 @@
 
 function drawDefaultTimeChart(svg) {
     nsvg = svg.append("svg").attr("id", "timegraph");
-    d3.json("../dataset/yearly_counts.json", function (yearly_counts) {
+    d3.json("dataset/yearly_counts.json", function (yearly_counts) {
         drawGraph(nsvg, yearly_counts);
     });
 }
